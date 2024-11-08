@@ -3,20 +3,14 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'my-maven-app'
-        DOCKER_TAG = 'latest'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
@@ -32,7 +26,7 @@ pipeline {
                     }
 
                     // Run the container
-                    sh "docker run -d --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run ${DOCKER_IMAGE}"
                 }
             }
         }
