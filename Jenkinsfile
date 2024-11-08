@@ -3,13 +3,12 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'my-maven-app'
-        DOCKER_TAG = 'latest'  // Tag for the Docker image
+        DOCKER_TAG = 'latest'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Pull the latest code from the Git repository
                 checkout scm
             }
         }
@@ -17,7 +16,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image locally
                     sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 }
             }
@@ -26,26 +24,27 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Check if a container is already running
+                    // Stop and remove any existing container with the same name
                     def existingContainer = sh(script: "docker ps -q -f name=${DOCKER_IMAGE}", returnStdout: true).trim()
-
                     if (existingContainer) {
-                        // Stop and remove the existing container
-                        sh "docker stop ${existingContainer}"
-                        sh "docker rm ${existingContainer}"
+                        sh "docker stop ${DOCKER_IMAGE}"
+                        sh "docker rm ${DOCKER_IMAGE}"
                     }
 
-                    // Run the container with port mappings
-                    sh "docker run -d -p 8081:8080 --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    // Run the container
+                    sh "docker run -d --name ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Show Container Logs') {
+            steps {
+                script {
+                    // Capture and display the logs of the container
+                    sh "docker logs ${DOCKER_IMAGE}"
                 }
             }
         }
     }
 
-    post {
-        always {
-            // Clean up any leftover Docker images (optional)
-            sh 'docker system prune -f'
-        }
-    }
 }
