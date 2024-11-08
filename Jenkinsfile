@@ -13,6 +13,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh 'mvn clean package'
                     sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 }
             }
