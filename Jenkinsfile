@@ -31,7 +31,7 @@ pipeline {
         }
         stage('Show Container Logs') {
             steps {
-                script {
+                script { 
                     sh "docker logs ${DOCKER_IMAGE}"
                 }
             }
